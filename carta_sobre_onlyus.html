@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Solo nosotros — Only Us</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #1a1a2e;
+  min-height: 100vh;
+  font-family: 'Courier New', Courier, monospace;
+  overflow-x: hidden;
+}
+
+/* ── PANTALLA DEL SOBRE ───────────────────────────────── */
+#scene {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  transition: opacity 0.5s ease;
+}
+
+.hint {
+  color: rgba(255,255,255,0.4);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  margin-bottom: 2.5rem;
+  text-transform: uppercase;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.9; }
+}
+
+.envelope-wrap {
+  position: relative;
+  width: 280px;
+  height: 196px;
+  cursor: pointer;
+  filter: drop-shadow(0 8px 24px rgba(200,16,46,0.3));
+  transition: filter 0.3s;
+}
+
+.envelope-wrap:hover {
+  filter: drop-shadow(0 12px 32px rgba(200,16,46,0.5));
+}
+
+#env-canvas {
+  position: absolute;
+  top: 0; left: 0;
+  width: 280px; height: 196px;
+  image-rendering: pixelated;
+}
+
+#flap-canvas {
+  position: absolute;
+  top: 0; left: 0;
+  width: 280px; height: 98px;
+  image-rendering: pixelated;
+  transform-origin: top center;
+  transition: transform 0.8s cubic-bezier(.4,0,.2,1);
+}
+
+.heart-seal {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 52px;
+  height: 52px;
+  cursor: pointer;
+  animation: heartbeat 1.2s ease-in-out infinite;
+  z-index: 10;
+}
+
+@keyframes heartbeat {
+  0%   { transform: translate(-50%,-50%) scale(1); }
+  15%  { transform: translate(-50%,-50%) scale(1.18); }
+  30%  { transform: translate(-50%,-50%) scale(1); }
+  45%  { transform: translate(-50%,-50%) scale(1.1); }
+  60%  { transform: translate(-50%,-50%) scale(1); }
+  100% { transform: translate(-50%,-50%) scale(1); }
+}
+
+.letter-peek-wrap {
+  position: absolute;
+  left: 10px; right: 10px;
+  bottom: 8px;
+  height: 80px;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.letter-peek {
+  background: #f5f0e8;
+  border: 2px solid #1A1A1A;
+  width: 100%;
+  height: 76px;
+  transform: translateY(80px);
+  transition: transform 0.7s cubic-bezier(.4,0,.2,1) 0.6s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: rgba(26,26,26,0.45);
+  letter-spacing: 0.1em;
+}
+
+/* ── CARTA COMPLETA ───────────────────────────────────── */
+#carta-wrap {
+  display: none;
+  background: #f5f0e8;
+  width: 100%;
+  min-height: 100vh;
+  animation: slideUp 0.7s cubic-bezier(.4,0,.2,1);
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.hearts-border {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  padding: 6px 4px;
+  border-bottom: 3px solid #c8102e;
+  background: #f5f0e8;
+  justify-content: center;
+}
+
+.hearts-border-bottom {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  padding: 6px 4px;
+  border-top: 3px solid #c8102e;
+  background: #f5f0e8;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.content-area {
+  padding: 1.75rem 1.75rem 2rem;
+  max-width: 520px;
+  margin: 0 auto;
+  font-family: 'Courier New', Courier, monospace;
+  color: #1A1A1A;
+}
+
+.seal-wrap {
+  display: flex;
+  justify-content: center;
+  margin: 1rem 0 1.5rem;
+}
+
+.carta-title {
+  text-align: center;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: rgba(26,26,26,0.35);
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+}
+
+.carta-to {
+  text-align: center;
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.beating-heart {
+  display: inline-block;
+  color: #c8102e;
+  font-size: 20px;
+  animation: beat 0.8s ease-in-out infinite;
+}
+
+@keyframes beat {
+  0%   { transform: scale(1); }
+  15%  { transform: scale(1.35); }
+  30%  { transform: scale(1); }
+  45%  { transform: scale(1.18); }
+  60%  { transform: scale(1); }
+  100% { transform: scale(1); }
+}
+
+.divider-mc {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 1rem 0;
+}
+.divider-line { flex: 1; height: 2px; background: #c8102e; }
+
+.carta-body {
+  font-size: 13px;
+  line-height: 2;
+  color: #1A1A1A;
+  margin-bottom: 1.25rem;
+}
+.carta-body p { margin-bottom: 0.9rem; }
+
+.firma {
+  text-align: right;
+  font-size: 14px;
+  font-weight: bold;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(26,26,26,0.1);
+}
+
+.skins-row {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin: 1.5rem 0 0.5rem;
+  align-items: flex-end;
+}
+
+.skin-label {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: rgba(26,26,26,0.4);
+  margin-top: 5px;
+  text-align: center;
+  text-transform: uppercase;
+}
+</style>
+</head>
+<body>
+
+<!-- SOBRE -->
+<div id="scene">
+  <div class="hint" id="hint">toca el corazón ♥</div>
+  <div class="envelope-wrap" id="env-wrap" onclick="openEnvelope()">
+    <canvas id="env-canvas" width="280" height="196"></canvas>
+    <canvas id="flap-canvas" width="280" height="98"></canvas>
+    <svg class="heart-seal" id="heart-seal" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+      <rect x="2" y="0" width="4" height="4" fill="#c8102e"/>
+      <rect x="10" y="0" width="4" height="4" fill="#c8102e"/>
+      <rect x="0" y="2" width="2" height="4" fill="#c8102e"/>
+      <rect x="14" y="2" width="2" height="4" fill="#c8102e"/>
+      <rect x="0" y="6" width="16" height="4" fill="#c8102e"/>
+      <rect x="2" y="10" width="12" height="4" fill="#c8102e"/>
+      <rect x="4" y="14" width="8" height="2" fill="#c8102e"/>
+    </svg>
+    <div class="letter-peek-wrap">
+      <div class="letter-peek" id="letter-peek">Para: mi bizcochito ♥</div>
+    </div>
+  </div>
+</div>
+
+<!-- CARTA -->
+<div id="carta-wrap">
+
+  <div class="hearts-border" id="hearts-top"></div>
+
+  <div class="content-area">
+
+    <div class="seal-wrap">
+      <svg width="90" height="90" viewBox="0 0 64 64" style="image-rendering:pixelated">
+        <rect x="0" y="0" width="64" height="64" fill="#f5f0e8"/>
+        <rect x="4" y="4" width="56" height="56" fill="none" stroke="#c8102e" stroke-width="2"/>
+        <rect x="8" y="8" width="48" height="48" fill="none" stroke="#c8102e" stroke-width="1"/>
+        <rect x="20" y="14" width="8" height="8" fill="#c8102e"/>
+        <rect x="36" y="14" width="8" height="8" fill="#c8102e"/>
+        <rect x="16" y="18" width="4" height="4" fill="#c8102e"/>
+        <rect x="44" y="18" width="4" height="4" fill="#c8102e"/>
+        <rect x="14" y="22" width="4" height="6" fill="#c8102e"/>
+        <rect x="46" y="22" width="4" height="6" fill="#c8102e"/>
+        <rect x="16" y="28" width="32" height="6" fill="#c8102e"/>
+        <rect x="20" y="34" width="24" height="6" fill="#c8102e"/>
+        <rect x="24" y="40" width="16" height="6" fill="#c8102e"/>
+        <rect x="28" y="46" width="8" height="4" fill="#c8102e"/>
+        <rect x="30" y="50" width="4" height="2" fill="#c8102e"/>
+        <text x="32" y="62" font-family="Courier New" font-size="5" fill="rgba(26,26,26,0.3)" text-anchor="middle" letter-spacing="1">ONLY US</text>
+      </svg>
+    </div>
+
+    <div class="carta-title">Una carta para ti</div>
+    <div class="carta-to">
+      <span>mi bizcochito</span>
+      <span class="beating-heart">♥</span>
+    </div>
+
+    <div class="divider-mc">
+      <div class="divider-line"></div>
+      <svg viewBox="0 0 16 16" width="14" height="14" style="image-rendering:pixelated;flex-shrink:0">
+        <rect x="2" y="0" width="4" height="4" fill="#c8102e"/>
+        <rect x="10" y="0" width="4" height="4" fill="#c8102e"/>
+        <rect x="0" y="2" width="2" height="4" fill="#c8102e"/>
+        <rect x="14" y="2" width="2" height="4" fill="#c8102e"/>
+        <rect x="0" y="6" width="16" height="4" fill="#c8102e"/>
+        <rect x="2" y="10" width="12" height="4" fill="#c8102e"/>
+        <rect x="4" y="14" width="8" height="2" fill="#c8102e"/>
+      </svg>
+      <div class="divider-line"></div>
+    </div>
+
+    <div class="carta-body">
+      <p>Llevamos casi 7 meses y todavía no sé muy bien cómo explicar lo que ha pasado en todo este tiempo. No porque sea complicado — sino porque ha sido demasiado bueno como para resumirlo en palabras.</p>
+      <p>Han pasado muchas cosas. Nada malo entre todas ellas. Y eso, aunque parezca simple, es algo que no todo el mundo puede decir.</p>
+      <p>Hemos disfrutado de todo. De los días grandes y de los días normales. De los planes y de los ratos sin hacer nada. De estar juntos todos los días como si fuera lo más natural del mundo — porque para mí ya lo es. Tú eres parte de mi día. De todos.</p>
+      <p>Lo más grande fue Italia. Nuestro primer viaje juntos como novios. Hay cosas de ese viaje que no se olvidan — no las fotos, no los sitios, sino la sensación de estar ahí contigo y pensar que no querría estar en ningún otro lugar del mundo con ninguna otra persona.</p>
+      <p>Estos drops que te he ido haciendo son mi forma de decirte que me fijo en todo. En lo que te gusta, en lo que guardas, en lo que te emociona. No me hago el duro contigo ni me guardo nada. Nunca lo he hecho. Y no pienso empezar.</p>
+      <p>Te quiero con todo lo que tengo.</p>
+      <p>Eres literalmente mi vida, my little otter.</p>
+      <p>Y aún nos queda mucho por vivir.</p>
+    </div>
+
+    <div class="firma">— tu B</div>
+
+    <div class="divider-mc" style="margin-top:1.5rem">
+      <div class="divider-line"></div>
+      <svg viewBox="0 0 16 16" width="14" height="14" style="image-rendering:pixelated;flex-shrink:0">
+        <rect x="2" y="0" width="4" height="4" fill="#c8102e"/>
+        <rect x="10" y="0" width="4" height="4" fill="#c8102e"/>
+        <rect x="0" y="2" width="2" height="4" fill="#c8102e"/>
+        <rect x="14" y="2" width="2" height="4" fill="#c8102e"/>
+        <rect x="0" y="6" width="16" height="4" fill="#c8102e"/>
+        <rect x="2" y="10" width="12" height="4" fill="#c8102e"/>
+        <rect x="4" y="14" width="8" height="2" fill="#c8102e"/>
+      </svg>
+      <div class="divider-line"></div>
+    </div>
+
+    <div class="skins-row">
+      <div>
+        <svg viewBox="0 0 32 48" width="52" height="78" style="image-rendering:pixelated;display:block">
+          <rect x="8" y="0" width="16" height="16" fill="#D4956A"/>
+          <rect x="10" y="2" width="12" height="12" fill="#C4845A"/>
+          <rect x="10" y="6" width="2" height="2" fill="#1A1A1A"/>
+          <rect x="18" y="6" width="2" height="2" fill="#1A1A1A"/>
+          <rect x="12" y="10" width="8" height="2" fill="#8B4513"/>
+          <rect x="12" y="0" width="2" height="4" fill="#8B6914"/>
+          <rect x="18" y="0" width="2" height="4" fill="#8B6914"/>
+          <rect x="8" y="2" width="2" height="6" fill="#C4845A"/>
+          <rect x="22" y="2" width="2" height="6" fill="#C4845A"/>
+          <rect x="6" y="16" width="20" height="20" fill="#D4956A"/>
+          <rect x="6" y="16" width="4" height="12" fill="#C4845A"/>
+          <rect x="22" y="16" width="4" height="12" fill="#C4845A"/>
+          <rect x="10" y="36" width="4" height="12" fill="#D4956A"/>
+          <rect x="18" y="36" width="4" height="12" fill="#D4956A"/>
+          <rect x="8" y="18" width="16" height="4" fill="#F5C49A"/>
+        </svg>
+        <div class="skin-label">bizcochito 🧡</div>
+      </div>
+
+      <svg viewBox="0 0 16 16" width="18" height="18" style="image-rendering:pixelated;margin-bottom:38px;flex-shrink:0">
+        <rect x="2" y="0" width="4" height="4" fill="#c8102e"/>
+        <rect x="10" y="0" width="4" height="4" fill="#c8102e"/>
+        <rect x="0" y="2" width="2" height="4" fill="#c8102e"/>
+        <rect x="14" y="2" width="2" height="4" fill="#c8102e"/>
+        <rect x="0" y="6" width="16" height="4" fill="#c8102e"/>
+        <rect x="2" y="10" width="12" height="4" fill="#c8102e"/>
+        <rect x="4" y="14" width="8" height="2" fill="#c8102e"/>
+      </svg>
+
+      <div>
+        <svg viewBox="0 0 32 48" width="52" height="78" style="image-rendering:pixelated;display:block">
+          <rect x="8" y="0" width="16" height="16" fill="#F5F5F5"/>
+          <rect x="8" y="0" width="4" height="8" fill="#1A1A1A"/>
+          <rect x="20" y="0" width="4" height="8" fill="#1A1A1A"/>
+          <rect x="12" y="0" width="8" height="4" fill="#1A1A1A"/>
+          <rect x="10" y="6" width="2" height="2" fill="#1A1A1A"/>
+          <rect x="18" y="6" width="2" height="2" fill="#1A1A1A"/>
+          <rect x="12" y="10" width="8" height="2" fill="#1A1A1A"/>
+          <rect x="6" y="16" width="20" height="20" fill="#F5F5F5"/>
+          <rect x="8" y="16" width="16" height="18" fill="#1A1A1A"/>
+          <rect x="10" y="18" width="12" height="14" fill="#F5F5F5"/>
+          <rect x="12" y="20" width="8" height="10" fill="#1A1A1A"/>
+          <rect x="6" y="16" width="4" height="12" fill="#1A1A1A"/>
+          <rect x="22" y="16" width="4" height="12" fill="#1A1A1A"/>
+          <rect x="10" y="36" width="4" height="12" fill="#1A1A1A"/>
+          <rect x="18" y="36" width="4" height="12" fill="#1A1A1A"/>
+          <rect x="10" y="44" width="4" height="4" fill="#F5F5F5"/>
+          <rect x="18" y="44" width="4" height="4" fill="#F5F5F5"/>
+        </svg>
+        <div class="skin-label">pastelito 🖤</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="hearts-border-bottom" id="hearts-bot"></div>
+
+</div>
+
+<script>
+var opened = false;
+
+// Dibujar cuerpo del sobre
+function drawEnvelope() {
+  var c = document.getElementById('env-canvas');
+  var ctx = c.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+
+  // Fondo crema
+  ctx.fillStyle = '#F5F0E8';
+  ctx.fillRect(0, 0, 280, 196);
+
+  // Bordes negros
+  ctx.fillStyle = '#1A1A1A';
+  for (var x = 0; x < 40; x++) { ctx.fillRect(x*7, 0, 7, 7); ctx.fillRect(x*7, 189, 7, 7); }
+  for (var y = 0; y < 28; y++) { ctx.fillRect(0, y*7, 7, 7); ctx.fillRect(273, y*7, 7, 7); }
+
+  // Parte inferior del sobre
+  ctx.fillStyle = '#E8E0D4';
+  ctx.fillRect(7, 98, 266, 91);
+
+  // Triángulo inferior (cierre)
+  ctx.fillStyle = '#D4CCC0';
+  ctx.beginPath();
+  ctx.moveTo(7, 98);
+  ctx.lineTo(140, 168);
+  ctx.lineTo(273, 98);
+  ctx.closePath();
+  ctx.fill();
+
+  // Esquinas
+  ctx.fillStyle = '#1A1A1A';
+  ctx.fillRect(7, 98, 7, 7);
+  ctx.fillRect(266, 98, 7, 7);
+  ctx.fillRect(133, 161, 14, 7);
+}
+
+// Dibujar solapa
+function drawFlap() {
+  var c = document.getElementById('flap-canvas');
+  var ctx = c.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+  ctx.clearRect(0, 0, 280, 98);
+
+  ctx.fillStyle = '#EDE5D9';
+  ctx.beginPath();
+  ctx.moveTo(7, 7);
+  ctx.lineTo(140, 91);
+  ctx.lineTo(273, 7);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = '#1A1A1A';
+  ctx.fillRect(7, 0, 7, 7);
+  ctx.fillRect(266, 0, 7, 7);
+  ctx.fillRect(133, 84, 14, 7);
+}
+
+// Corazón SVG para bordes
+function mcHeart(color) {
+  var s = document.createElementNS('http://www.w3.org/2000/svg','svg');
+  s.setAttribute('viewBox','0 0 16 16');
+  s.setAttribute('width','14'); s.setAttribute('height','14');
+  s.style.imageRendering = 'pixelated';
+  s.style.flexShrink = '0';
+  [[2,0,4,4],[10,0,4,4],[0,2,2,4],[14,2,2,4],[0,6,16,4],[2,10,12,4],[4,14,8,2]].forEach(function(p){
+    var r = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    r.setAttribute('x',p[0]); r.setAttribute('y',p[1]);
+    r.setAttribute('width',p[2]); r.setAttribute('height',p[3]);
+    r.setAttribute('fill',color); s.appendChild(r);
+  });
+  return s;
+}
+
+function fillHearts(id, n) {
+  var el = document.getElementById(id);
+  var colors = ['#c8102e','#e63946','#c8102e','#a00020','#c8102e'];
+  for(var i=0;i<n;i++) el.appendChild(mcHeart(colors[i%colors.length]));
+}
+
+function openEnvelope() {
+  if (opened) return;
+  opened = true;
+
+  // Ocultar hint y corazón
+  document.getElementById('hint').style.opacity = '0';
+  document.getElementById('heart-seal').style.display = 'none';
+
+  // Abrir solapa
+  var flap = document.getElementById('flap-canvas');
+  flap.style.transform = 'rotateX(-170deg)';
+
+  // Carta sube
+  var peek = document.getElementById('letter-peek');
+  peek.style.transition = 'transform 0.8s cubic-bezier(.4,0,.2,1) 0.4s';
+  peek.style.transform = 'translateY(0)';
+
+  // Fade out sobre → mostrar carta
+  setTimeout(function() {
+    var scene = document.getElementById('scene');
+    scene.style.opacity = '0';
+    scene.style.transition = 'opacity 0.5s ease';
+
+    setTimeout(function() {
+      scene.style.display = 'none';
+      var carta = document.getElementById('carta-wrap');
+      carta.style.display = 'block';
+      fillHearts('hearts-top', 28);
+      fillHearts('hearts-bot', 28);
+      window.scrollTo(0, 0);
+    }, 500);
+  }, 1400);
+}
+
+drawEnvelope();
+drawFlap();
+</script>
+</body>
+</html>
