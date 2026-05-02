@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ONLY US — Case File 03</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Courier New',Courier,monospace;background:#111108;min-height:100vh;overflow-x:hidden}
+body::after{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.04) 2px,rgba(0,0,0,0.04) 4px);pointer-events:none;z-index:9999}
+.screen{display:none;min-height:100vh;background:#F5F0E8;padding:2rem 1.5rem 4rem;max-width:480px;margin:0 auto;position:relative;overflow:hidden}
+.screen.active{display:block;animation:pageFlip 0.5s cubic-bezier(.4,0,.2,1)}
+@keyframes pageFlip{0%{opacity:0;transform:translateX(30px)}100%{opacity:1;transform:translateX(0)}}
+.screen::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background-image:repeating-linear-gradient(0deg,transparent,transparent 28px,rgba(26,26,26,0.04) 28px,rgba(26,26,26,0.04) 29px);pointer-events:none}
+.hdr{display:flex;justify-content:space-between;font-size:9px;letter-spacing:0.1em;color:rgba(26,26,26,0.3);padding-bottom:0.6rem;border-bottom:1px solid rgba(26,26,26,0.1);margin-bottom:1.75rem;position:relative;z-index:1}
+.sbadge{display:inline-block;border:1.5px solid rgba(98,36,39,0.28);color:rgba(98,36,39,0.28);font-size:8px;letter-spacing:0.2em;padding:2px 9px;transform:rotate(-3deg);margin-bottom:1.25rem;position:relative;z-index:1}
+.big-title{font-size:50px;font-weight:bold;line-height:1;margin-bottom:0.4rem;color:#1A1A1A;position:relative;z-index:1}
+.subtitle{font-size:9px;color:#A09B94;letter-spacing:0.16em;margin-bottom:1.75rem;position:relative;z-index:1}
+.progress{display:flex;gap:5px;margin-bottom:1.75rem;position:relative;z-index:1}
+.dot{height:3px;flex:1;background:rgba(26,26,26,0.1);transition:background 0.4s}
+.dot.done{background:#1A1A1A}.dot.active{background:rgba(26,26,26,0.4)}
+hr{border:none;border-top:1px solid rgba(26,26,26,0.1);margin:1.25rem 0;position:relative;z-index:1}
+.clue-box{border:1px solid rgba(26,26,26,0.13);padding:1rem 1.2rem;margin:0.75rem 0 1.25rem;background:rgba(26,26,26,0.02);position:relative;z-index:1}
+.clue-label{font-size:8px;letter-spacing:0.14em;color:#A09B94;margin-bottom:0.75rem;text-transform:uppercase}
+.clue-text{font-size:13px;line-height:1.85;color:#1A1A1A;white-space:pre-wrap}
+.hint{font-size:11px;color:#A09B94;margin-top:0.6rem;display:block;white-space:normal}
+.cur{display:inline-block;width:2px;height:1em;background:#1A1A1A;vertical-align:text-bottom;margin-left:1px;animation:blink 0.7s step-end infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.field-label{font-size:8px;letter-spacing:0.12em;color:#A09B94;text-transform:uppercase;margin-bottom:0.4rem;margin-top:1.25rem;position:relative;z-index:1}
+input[type=text]{width:100%;background:transparent;border:none;border-bottom:1px solid rgba(26,26,26,0.25);padding:0.5rem 0;font-family:'Courier New',Courier,monospace;font-size:18px;color:#1A1A1A;letter-spacing:0.1em;outline:none;margin-bottom:0.4rem;position:relative;z-index:1;transition:border-color 0.2s;-webkit-appearance:none;border-radius:0}
+input::placeholder{color:rgba(26,26,26,0.15)}
+input:focus{border-bottom-color:rgba(26,26,26,0.5)}
+input.shake{animation:shake 0.4s cubic-bezier(.36,.07,.19,.97);border-bottom-color:#993C1D!important}
+@keyframes shake{0%,100%{transform:translateX(0)}15%{transform:translateX(-8px)}30%{transform:translateX(8px)}45%{transform:translateX(-6px)}60%{transform:translateX(6px)}75%{transform:translateX(-3px)}90%{transform:translateX(3px)}}
+.err{font-size:10px;color:#993C1D;letter-spacing:0.06em;min-height:16px;margin-bottom:0.6rem;position:relative;z-index:1}
+.btn{background:transparent;border:1px solid rgba(26,26,26,0.28);padding:0.6rem 1.5rem;font-family:'Courier New',Courier,monospace;font-size:10px;letter-spacing:0.14em;color:#1A1A1A;cursor:pointer;text-transform:uppercase;width:100%;position:relative;z-index:1;-webkit-appearance:none}
+.btn:active{background:rgba(26,26,26,0.06)}
+.succ{display:none;position:relative;z-index:1}
+.sg-wrap{display:flex;justify-content:center;margin:1rem 0 0.5rem}
+.sg{display:inline-block;border:3px solid rgba(26,26,26,0.65);color:rgba(26,26,26,0.65);font-size:13px;font-weight:bold;letter-spacing:0.2em;padding:5px 14px;transform:rotate(-12deg) scale(0);opacity:0}
+.sg.pop{animation:stampPop 0.5s cubic-bezier(.2,1.5,.5,1) forwards}
+@keyframes stampPop{0%{transform:rotate(-12deg) scale(0) translateY(-20px);opacity:0}60%{transform:rotate(-12deg) scale(1.12) translateY(0);opacity:1}80%{transform:rotate(-12deg) scale(0.96);opacity:1}100%{transform:rotate(-12deg) scale(1);opacity:1}}
+.si{border-left:2px solid rgba(26,26,26,0.28);padding:1rem 1.2rem;margin-top:0.75rem;animation:fadeUp 0.4s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.sl{font-size:8px;letter-spacing:0.16em;color:#A09B94;margin-bottom:0.6rem;text-transform:uppercase}
+.st{font-size:13px;line-height:1.9;color:#1A1A1A}
+.dim{color:#A09B94}
+.btn-next{background:#1A1A1A;color:#F5F0E8;border:none;padding:0.7rem 1.5rem;font-family:'Courier New',Courier,monospace;font-size:10px;letter-spacing:0.14em;cursor:pointer;text-transform:uppercase;width:100%;margin-top:1rem;position:relative;z-index:1;-webkit-appearance:none}
+.btn-next:active{opacity:0.85}
+.dec{font-size:10px;color:#A09B94;letter-spacing:0.1em;text-align:center;padding:0.75rem 0;animation:flicker 0.12s infinite}
+@keyframes flicker{0%,100%{opacity:1}50%{opacity:0.6}}
+.dec-bar{height:2px;background:rgba(26,26,26,0.08);margin:0.5rem 0;overflow:hidden}
+.dec-fill{height:100%;background:#1A1A1A;width:0;transition:width 1.6s linear}
+.mn{position:absolute;right:3px;top:35%;font-size:5px;color:rgba(26,26,26,0.1);writing-mode:vertical-rl;pointer-events:none;letter-spacing:0.06em}
+.final-wrap{text-align:center;padding-top:2rem;position:relative;z-index:1}
+.final-msg{font-size:16px;line-height:2.2;color:#1A1A1A;margin:2rem 0;white-space:pre-wrap;min-height:60px}
+.final-meta{font-size:9px;color:#C8C4BE;letter-spacing:0.1em;line-height:2;margin-top:2.5rem}
+.attempts{font-size:9px;color:#A09B94;letter-spacing:0.12em;text-align:right;margin-top:0.4rem;margin-bottom:0.6rem;position:relative;z-index:1}
+.attempts span{color:#1A1A1A;font-weight:bold}
+.attempts.warn span{color:#993C1D}
+.expediente{display:inline-block;font-size:10px;letter-spacing:0.18em;color:rgba(26,26,26,0.5);border:1px dashed rgba(26,26,26,0.2);padding:4px 10px;margin-top:0.6rem;background:rgba(26,26,26,0.02)}
+.help-box{border:1px dashed rgba(98,36,39,0.4);padding:0.9rem 1.1rem;margin-top:0.9rem;background:rgba(98,36,39,0.04);position:relative;z-index:1;animation:fadeUp 0.5s ease}
+.help-label{font-size:8px;letter-spacing:0.18em;color:#622427;margin-bottom:0.5rem;text-transform:uppercase;font-weight:bold}
+.help-content{font-size:11px;line-height:1.7;color:#1A1A1A;white-space:pre-wrap}
+.cipher-table{font-size:10px;letter-spacing:0.05em;line-height:1.5;color:#1A1A1A;margin-top:0.5rem;font-family:'Courier New',Courier,monospace}
+.multi-fields{margin-top:0.5rem}
+.multi-label{font-size:8px;letter-spacing:0.14em;color:#A09B94;text-transform:uppercase;margin-top:0.9rem;margin-bottom:0.3rem}
+.multi-label:first-child{margin-top:0}
+input.multi{font-size:16px;letter-spacing:0.06em}
+.session-time{font-size:8px;color:rgba(26,26,26,0.35);letter-spacing:0.12em;text-align:center;margin-top:1.5rem;margin-bottom:0.5rem;position:relative;z-index:1}
+</style>
+</head>
+<body>
+
+<!-- ============ LAYER 01 ============ -->
+<div id="s1" class="screen active">
+  <div class="mn">classified material // private record // only us // do not distribute</div>
+  <div class="hdr"><span>ONLY US — ARCHIVE SERIES</span><span id="ts1"></span></div>
+  <div class="sbadge">CLASSIFIED</div>
+  <div class="big-title">CASE<br>FILE<br>03</div>
+  <div class="subtitle">LAYER 01 / 04 — ACCESS REQUIRED</div>
+  <div class="progress"><div class="dot active"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+  <hr>
+  <div class="clue-box">
+    <div class="clue-label">Archive note — Layer 01</div>
+    <div class="clue-text" id="tw1"></div>
+    <span class="hint">Format: DDMMYY (no separators, no spaces)</span>
+    <div class="expediente">EXPEDIENTE Nº 0307-B-S-0907</div>
+  </div>
+  <div class="field-label">Access code</div>
+  <input type="text" id="i1" maxlength="8" placeholder="______" autocomplete="off" inputmode="numeric">
+  <div class="err" id="e1"></div>
+  <div class="attempts" id="att1">Attempts: <span>0</span> / unlimited</div>
+  <button class="btn" onclick="check(1)">Verify access &rarr;</button>
+  <div class="succ" id="ok1">
+    <div class="sg-wrap"><div class="sg" id="sg1">ACCESS GRANTED</div></div>
+    <div class="si"><div class="sl">Layer 01 &mdash; Unlocked</div><div class="st">Access granted.<br>Proceed to layer 02.<br><br><span class="dim">&mdash; &mdash; &mdash;</span><br><br>The next clue is inside the Case File.<br>Look at the back of photo 03-B.</div></div>
+    <button class="btn-next" onclick="go(2)">Continue to layer 02 &rarr;</button>
+  </div>
+  <div class="session-time" id="st1"></div>
+</div>
+
+<!-- ============ LAYER 02 ============ -->
+<div id="s2" class="screen">
+  <div class="mn">classified material // private record // only us // do not distribute</div>
+  <div class="hdr"><span>ONLY US &mdash; ARCHIVE SERIES</span><span id="ts2"></span></div>
+  <div class="sbadge">CLASSIFIED</div>
+  <div class="big-title">LAYER<br>02</div>
+  <div class="subtitle">GEOLOCATION &mdash; DECRYPTION REQUIRED</div>
+  <div class="progress"><div class="dot done"></div><div class="dot active"></div><div class="dot"></div><div class="dot"></div></div>
+  <hr>
+  <div class="clue-box">
+    <div class="clue-label">Archive note &mdash; Layer 02</div>
+    <div class="clue-text" id="tw2"></div>
+    <span class="hint">Output must be in Spanish, lowercase, no accents.</span>
+  </div>
+  <div class="field-label">Decrypted output</div>
+  <input type="text" id="i2" maxlength="20" placeholder="________" autocomplete="off">
+  <div class="err" id="e2"></div>
+  <div class="attempts" id="att2">Attempts: <span>0</span> / 3 before assistance</div>
+  <div id="help2"></div>
+  <button class="btn" onclick="check(2)">Submit decryption &rarr;</button>
+  <div class="succ" id="ok2">
+    <div class="sg-wrap"><div class="sg" id="sg2">DECRYPTED</div></div>
+    <div class="si"><div class="sl">Layer 02 &mdash; Unlocked</div><div class="st">Geolocation confirmed.<br>Cipher resolved.<br><br><span class="dim">&mdash; &mdash; &mdash;</span><br><br>The next clue is in the Memory Card.<br>The image on the back side.</div></div>
+    <button class="btn-next" onclick="go(3)">Continue to layer 03 &rarr;</button>
+  </div>
+  <div class="session-time" id="st2"></div>
+</div>
+
+<!-- ============ LAYER 03 ============ -->
+<div id="s3" class="screen">
+  <div class="mn">classified material // private record // only us // do not distribute</div>
+  <div class="hdr"><span>ONLY US &mdash; ARCHIVE SERIES</span><span id="ts3"></span></div>
+  <div class="sbadge">CLASSIFIED</div>
+  <div class="big-title">LAYER<br>03</div>
+  <div class="subtitle">INCIDENT REPORT &mdash; TRIPLE VERIFICATION</div>
+  <div class="progress"><div class="dot done"></div><div class="dot done"></div><div class="dot active"></div><div class="dot"></div></div>
+  <hr>
+  <div class="clue-box">
+    <div class="clue-label">Archive note &mdash; Layer 03</div>
+    <div class="clue-text" id="tw3"></div>
+    <span class="hint">All three fields must match. Partial match returns no information.</span>
+  </div>
+  <div class="multi-fields">
+    <div class="multi-label">Field 01 &mdash; City of incident</div>
+    <input type="text" class="multi" id="i3a" maxlength="20" placeholder="________" autocomplete="off">
+    <div class="multi-label">Field 02 &mdash; Date of incident (DDMMYY)</div>
+    <input type="text" class="multi" id="i3b" maxlength="8" placeholder="______" autocomplete="off" inputmode="numeric">
+    <div class="multi-label">Field 03 &mdash; Final score (format: N-N)</div>
+    <input type="text" class="multi" id="i3c" maxlength="6" placeholder="_-_" autocomplete="off">
+  </div>
+  <div class="err" id="e3"></div>
+  <div class="attempts" id="att3">Attempts: <span>0</span> / 3 before assistance</div>
+  <div id="help3"></div>
+  <button class="btn" onclick="check(3)">Verify all fields &rarr;</button>
+  <div class="succ" id="ok3">
+    <div class="sg-wrap"><div class="sg" id="sg3">VERIFIED</div></div>
+    <div class="si"><div class="sl">Layer 03 &mdash; Unlocked</div><div class="st">Incident confirmed.<br>All fields validated.<br><br><span class="dim">&mdash; &mdash; &mdash;</span><br><br>The final clue requires the World File.<br>And something you have already seen.</div></div>
+    <button class="btn-next" onclick="go(4)">Continue to layer 04 &rarr;</button>
+  </div>
+  <div class="session-time" id="st3"></div>
+</div>
+
+<!-- ============ LAYER 04 ============ -->
+<div id="s4" class="screen">
+  <div class="mn">classified material // private record // only us // do not distribute</div>
+  <div class="hdr"><span>ONLY US &mdash; ARCHIVE SERIES</span><span id="ts4"></span></div>
+  <div class="sbadge">CLASSIFIED</div>
+  <div class="big-title">LAYER<br>04</div>
+  <div class="subtitle">CONVERGENCE &mdash; FINAL ACCESS</div>
+  <div class="progress"><div class="dot done"></div><div class="dot done"></div><div class="dot done"></div><div class="dot active"></div></div>
+  <hr>
+  <div class="clue-box">
+    <div class="clue-label">Archive note &mdash; Layer 04</div>
+    <div class="clue-text" id="tw4"></div>
+    <span class="hint">Format: skin1 + skin2 + 4 digits. No spaces. Lowercase.</span>
+  </div>
+  <div class="field-label">Convergence key</div>
+  <input type="text" id="i4" maxlength="30" placeholder="________________" autocomplete="off">
+  <div class="err" id="e4"></div>
+  <div class="attempts" id="att4">Attempts: <span>0</span> / 3 before assistance</div>
+  <div id="help4"></div>
+  <button class="btn" onclick="check(4)">Submit convergence &rarr;</button>
+  <div class="succ" id="ok4">
+    <div class="sg-wrap"><div class="sg" id="sg4">CASE COMPLETE</div></div>
+    <div class="si"><div class="sl">All layers &mdash; Unlocked</div><div class="st">Convergence successful.<br><br><span class="dim">&mdash; &mdash; &mdash;</span><br><br>The case is now open for review.<br>One more page to turn.</div></div>
+    <button class="btn-next" onclick="goFinal()">Open final transmission &rarr;</button>
+  </div>
+  <div class="session-time" id="st4"></div>
+</div>
+
+<!-- ============ FINAL ============ -->
+<div id="s5" class="screen">
+  <div class="hdr"><span>ONLY US &mdash; ARCHIVE SERIES</span><span id="ts5"></span></div>
+  <div class="final-wrap">
+    <div class="progress" style="margin-bottom:2rem"><div class="dot done"></div><div class="dot done"></div><div class="dot done"></div><div class="dot done"></div></div>
+    <div class="sbadge" style="transform:rotate(-2deg);font-size:10px;padding:4px 12px">CASE CLOSED</div>
+    <div class="big-title" style="margin-top:1.5rem;font-size:44px">ONLY<br>US</div>
+    <hr>
+    <div class="final-msg" id="final-msg"></div>
+    <hr>
+    <div class="final-meta">Case File 03 &mdash; Complete<br>Status: Closed &mdash; Ongoing<br>Subject: SOFI<br>Archive ref: Only Us &mdash; Private Record<br>Entry 03 / 07<br><br><span id="finalSessionTime"></span></div>
+  </div>
+</div>
+
+<script>
+// =================================================
+// GYMKANA 2.0 — DROP 03
+// 4 capas con dificultad escalada
+// =================================================
+
+// =========== RESPUESTAS ===========
+// Capa 1: 09/07/2025 (primer contacto)
+// Capa 2: Cesar +3 sobre "vaticano" -> "ydwlfdqr"
+// Capa 3: chamartin + 181025 + 2-1
+// Capa 4: otter + panda + 0907 (los 4 digitos del expediente)
+var answers = {
+  1: ['090725', '09072025'],
+  2: ['ydwlfdqr'],
+  3: {
+    a: ['chamartin', 'madrid'],
+    b: ['181025', '18102025'],
+    c: ['2-1', '21', '2v1']
+  },
+  4: ['otterpanda090725', 'pandaotter0907', 'otterpanda0907', 'pandaotter090725']
+};
+
+// =========== PISTAS ===========
+var clues = {
+  1: 'The archive opens with one date.\n\nThe day initial contact was registered.\nThe day the case began.\n\nLook at the front of the opening card.\nNote the expediente number below.',
+  
+  2: 'Coordinates recovered from photo 03-B:\n\n  41\u00b054\'08"N   12\u00b027\'12"E\n\nIdentify the location.\nThen apply Caesar cipher (shift +3)\nto the result, in Spanish.\n\nExample: a \u2192 d, b \u2192 e, c \u2192 f...\n\nSubmit only the encrypted output.',
+  
+  3: 'Photographic evidence on the back of the postal\nshows a confrontation in progress.\n\nTwo agents (you + subject) versus two unknowns.\nOutcome: favorable.\n\nProvide the city, date and final score\nto unlock this layer.',
+  
+  4: 'You have reached the final layer.\n\nIdentify both operatives by their\ndesignations (in the World File).\n\nThen append the four (4) digits found\nin the expediente shown on Layer 01.\n\nThe expediente was visible from the start.\nThe answer was always there.'
+};
+
+// =========== HINTS ESCALONADOS ===========
+var hints = {
+  2: '<div class="help-box"><div class="help-label">&#9888; ASSISTANCE &mdash; DECRYPTION KEY</div><div class="help-content">Caesar cipher (shift +3):\n\n<span class="cipher-table">a\u2192d  b\u2192e  c\u2192f  d\u2192g  e\u2192h\nf\u2192i  g\u2192j  h\u2192k  i\u2192l  j\u2192m\nk\u2192n  l\u2192o  m\u2192p  n\u2192q  o\u2192r\np\u2192s  q\u2192t  r\u2192u  s\u2192v  t\u2192w\nu\u2192x  v\u2192y  w\u2192z  x\u2192a  y\u2192b  z\u2192c</span>\n\nApply to the location name (Spanish).\nNo accents.</div></div>',
+  
+  3: '<div class="help-box"><div class="help-label">&#9888; ASSISTANCE &mdash; REDACTED FRAGMENT</div><div class="help-content">Recovered fragment from agent\'s notes:\n\n"...\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588  on the 18th of October.\nBilliards table. Two strangers.\nFinal: \u2588\u2588\u2588. We won."\n\nCity: a Madrid district.\nScore: a tied frame, then we took it.</div></div>',
+  
+  4: '<div class="help-box"><div class="help-label">&#9888; ASSISTANCE &mdash; REDIRECT</div><div class="help-content">You have already seen the four digits.\n\nReturn to Layer 01 and observe the\nexpediente number more carefully.\n\nThe digits are NOT the case number.\nThey are the suffix.</div></div>'
+};
+
+// =========== ESTADO ===========
+var attempts = {1:0, 2:0, 3:0, 4:0};
+var sessionStart = Date.now();
+
+// =========== TYPEWRITER ===========
+function typewrite(id, text){
+  var el = document.getElementById(id);
+  if(!el) return;
+  el.textContent = '';
+  var i = 0;
+  var iv = setInterval(function(){
+    if(i < text.length){
+      el.textContent += text.charAt(i);
+      i++;
+    } else {
+      clearInterval(iv);
+      var cur = document.createElement('span');
+      cur.className = 'cur';
+      el.appendChild(cur);
+    }
+  }, 18);
+}
+
+// =========== SESSION TIME ===========
+function updateSessionTime(){
+  var elapsed = Math.floor((Date.now() - sessionStart) / 1000);
+  var m = Math.floor(elapsed / 60);
+  var s = elapsed % 60;
+  var formatted = (m<10?'0'+m:m) + ':' + (s<10?'0'+s:s);
+  ['st1','st2','st3','st4'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.textContent = 'session: ' + formatted;
+  });
+  var fst = document.getElementById('finalSessionTime');
+  if(fst) fst.textContent = 'Total session time: ' + formatted;
+}
+setInterval(updateSessionTime, 1000);
+
+// =========== TIMESTAMP ===========
+function updateTS(){
+  var now = new Date();
+  var ts = now.toISOString().replace('T',' ').substring(0,19);
+  ['ts1','ts2','ts3','ts4','ts5'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.textContent = ts;
+  });
+}
+updateTS();
+setInterval(updateTS, 1000);
+
+// =========== NORMALIZACION ===========
+function normalize(str){
+  if(!str) return '';
+  var s = str.trim().toLowerCase();
+  s = s.replace(/\u00e1/g,'a').replace(/\u00e9/g,'e').replace(/\u00ed/g,'i');
+  s = s.replace(/\u00f3/g,'o').replace(/\u00fa/g,'u').replace(/\u00f1/g,'n');
+  s = s.replace(/\s+/g,'').replace(/[\.\,\;]/g,'');
+  return s;
+}
+
+// =========== ATTEMPTS DISPLAY ===========
+function updateAttempts(n){
+  var el = document.getElementById('att'+n);
+  if(!el) return;
+  if(n === 1){
+    el.innerHTML = 'Attempts: <span>'+attempts[n]+'</span> / unlimited';
+  } else {
+    if(attempts[n] >= 3){
+      el.classList.add('warn');
+      el.innerHTML = 'Attempts: <span>'+attempts[n]+'</span> / assistance unlocked';
+    } else {
+      el.innerHTML = 'Attempts: <span>'+attempts[n]+'</span> / 3 before assistance';
+    }
+  }
+}
+
+// =========== MOSTRAR HINT ===========
+function showHint(n){
+  var el = document.getElementById('help'+n);
+  if(el && !el.innerHTML && hints[n]){
+    el.innerHTML = hints[n];
+  }
+}
+
+// =========== FAIL FEEDBACK ===========
+function failInput(input, errEl, msg){
+  errEl.textContent = msg || 'Access denied. Incorrect input.';
+  input.classList.remove('shake');
+  void input.offsetWidth;
+  input.classList.add('shake');
+  setTimeout(function(){
+    input.classList.remove('shake');
+    errEl.textContent = '';
+  }, 1800);
+}
+
+// =========== CHECK PRINCIPAL ===========
+function check(n){
+  var err = document.getElementById('e'+n);
+  var ok = document.getElementById('ok'+n);
+  
+  if(n === 3){
+    // Pregunta multiple
+    var ia = document.getElementById('i3a');
+    var ib = document.getElementById('i3b');
+    var ic = document.getElementById('i3c');
+    var va = normalize(ia.value);
+    var vb = normalize(ib.value);
+    var vc = normalize(ic.value);
+    
+    var validA = answers[3].a.indexOf(va) > -1;
+    var validB = answers[3].b.indexOf(vb) > -1;
+    var validC = answers[3].c.indexOf(vc) > -1;
+    
+    if(validA && validB && validC){
+      ia.disabled = true; ib.disabled = true; ic.disabled = true;
+      successAnimation(n, ok);
+    } else {
+      attempts[n]++;
+      updateAttempts(n);
+      [ia, ib, ic].forEach(function(inp){ inp.classList.remove('shake'); });
+      void ia.offsetWidth;
+      [ia, ib, ic].forEach(function(inp){ inp.classList.add('shake'); });
+      err.textContent = 'Evidence incomplete. One or more fields are incorrect.';
+      setTimeout(function(){
+        [ia, ib, ic].forEach(function(inp){ inp.classList.remove('shake'); });
+        err.textContent = '';
+      }, 2000);
+      if(attempts[n] >= 3) showHint(n);
+    }
+    return;
+  }
+  
+  // Capas con un solo input
+  var input = document.getElementById('i'+n);
+  var val = normalize(input.value);
+  
+  if(answers[n].indexOf(val) > -1){
+    input.disabled = true;
+    successAnimation(n, ok);
+  } else {
+    attempts[n]++;
+    updateAttempts(n);
+    
+    var msg = 'Access denied. Incorrect input.';
+    if(n === 2 && attempts[n] === 1) msg = 'Decryption failed. Cipher mismatch.';
+    if(n === 2 && attempts[n] === 2) msg = 'Decryption failed. Verify shift direction.';
+    if(n === 4 && attempts[n] === 1) msg = 'Convergence failed. Missing component.';
+    if(n === 4 && attempts[n] === 2) msg = 'Convergence failed. Recheck format.';
+    
+    failInput(input, err, msg);
+    
+    if(attempts[n] >= 3) showHint(n);
+  }
+}
+
+// =========== SUCCESS ANIMATION ===========
+function successAnimation(n, okEl){
+  var dec = document.createElement('div');
+  dec.className = 'dec';
+  dec.textContent = 'Decrypting...';
+  
+  var bar = document.createElement('div');
+  bar.className = 'dec-bar';
+  var fill = document.createElement('div');
+  fill.className = 'dec-fill';
+  bar.appendChild(fill);
+  
+  okEl.parentNode.insertBefore(dec, okEl);
+  okEl.parentNode.insertBefore(bar, okEl);
+  
+  setTimeout(function(){ fill.style.width = '100%'; }, 50);
+  
+  setTimeout(function(){
+    if(dec.parentNode) dec.parentNode.removeChild(dec);
+    if(bar.parentNode) bar.parentNode.removeChild(bar);
+    okEl.style.display = 'block';
+    setTimeout(function(){
+      var sg = document.getElementById('sg'+n);
+      if(sg) sg.classList.add('pop');
+    }, 150);
+    okEl.scrollIntoView({behavior:'smooth', block:'center'});
+  }, 1800);
+}
+
+// =========== NAVEGACION ENTRE CAPAS ===========
+function go(n){
+  var all = document.querySelectorAll('.screen');
+  for(var i = 0; i < all.length; i++){
+    all[i].classList.remove('active');
+    all[i].style.cssText = '';
+  }
+  var id = 's' + n;
+  var next = document.getElementById(id);
+  if(!next) return;
+  next.classList.add('active');
+  window.scrollTo(0, 0);
+  if(clues[n]) setTimeout(function(){ typewrite('tw'+n, clues[n]); }, 350);
+}
+
+// =========== FINAL ===========
+function goFinal(){
+  var all = document.querySelectorAll('.screen');
+  for(var i = 0; i < all.length; i++){
+    all[i].classList.remove('active');
+    all[i].style.cssText = '';
+  }
+  document.getElementById('s5').classList.add('active');
+  window.scrollTo(0, 0);
+  
+  var finalText = 'Caso 0307-B-S resuelto.\n\nEl agente B esta\nirreversiblemente comprometido.\n\nVeredicto: que continue.\n\n\u2014 Sofi \u2014\n\nGracias por descifrarme\ncomo nadie mas sabe.';
+  
+  setTimeout(function(){ typewrite('final-msg', finalText); }, 600);
+}
+
+// =========== ENTER PARA SUBMIT ===========
+[1,2,4].forEach(function(n){
+  var inp = document.getElementById('i'+n);
+  if(inp) inp.addEventListener('keydown', function(e){
+    if(e.key === 'Enter') check(n);
+  });
+});
+['i3a','i3b','i3c'].forEach(function(id){
+  var inp = document.getElementById(id);
+  if(inp) inp.addEventListener('keydown', function(e){
+    if(e.key === 'Enter') check(3);
+  });
+});
+
+// =========== TYPEWRITER INICIAL ===========
+setTimeout(function(){ typewrite('tw1', clues[1]); }, 400);
+
+</script>
+</body>
+</html>
